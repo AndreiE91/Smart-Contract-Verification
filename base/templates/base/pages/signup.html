@@ -1,0 +1,101 @@
+{% extends 'base/main.html' %} {% block content %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Sign Up</title>
+    <!-- Required meta tags -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <!-- web3  -->
+    <script
+      type="text/javascript"
+      src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.2.7-rc.0/web3.min.js"
+    ></script>
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <br />
+
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6 offset-md-3">
+          <h1 class="text-center mb-4">Sign Up</h1>
+          <form method="POST" action="{% url 'signup' %}">
+            {% csrf_token %}
+            <div class="form-group">
+              <label for="name"> First Name</label>
+              <input
+                type="text"
+                class="form-control"
+                name="fname"
+                placeholder="Enter your name"
+              />
+              <label for="name"> Last Name</label>
+              <input
+                type="text"
+                class="form-control"
+                name="lname"
+                placeholder="Enter your name"
+              />
+            </div>
+            <div class="form-group">
+              <label for="email">Email address</label>
+              <input
+                type="email"
+                class="form-control"
+                name="email"
+                placeholder="Enter your email"
+              />
+              
+              <!-- <label for="name"> Account Id</label> -->
+              <input
+                type="hidden"
+                class="form-control"
+                id="account_id"
+                name="account_id"
+                placeholder="Paste Account Id"
+              />
+            </div>
+            <p class="text-muted small">Metamask wallet address will be stored in our database.</p>
+            <button type="submit" class="btn btn-primary btn-block">
+              Submit
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script>
+      let account;
+      const connectMetamask = async () => {
+        if (window.ethereum !== "undefined") {
+          const accounts = await ethereum.request({
+            method: "eth_requestAccounts",
+          });
+
+          account = accounts[0].trim().toLowerCase();
+          console.log("account pulled ", account);
+
+          document.getElementById("account_id").value = account;
+
+          //document.getElementById("accountArea").innerHTML = account;
+        }
+      };
+      window.addEventListener("load", connectMetamask);
+    </script>
+  </body>
+</html>
+
+{% endblock %}

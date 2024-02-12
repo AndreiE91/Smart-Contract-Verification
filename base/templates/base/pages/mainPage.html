@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Runtime Verification of Smart Contracts App</title>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.2.7-rc.0/web3.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous" />
+    <style>
+      body {
+        background-image: url('https://images.unsplash.com/photo-1495978261873-364bba47be9d?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Nnx8YmxvY2tjaGFpbmljJTIwd2l0aCUyMGNhcnJpYiUyMGZyb218ZW58MHx8MHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60');
+        background-position: center;
+        background-size: cover;
+        text-align: center;
+      }
+
+      .navbar {
+        margin-bottom: 30px;
+      }
+
+      .logo {
+        max-width: 150px;
+        margin: 0 auto;
+      }
+
+      .container {
+        margin-top: 30px;
+      }
+
+      .card {
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px 1px #ccc;
+        padding: 20px;
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .card-header {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+
+      .btn-primary {
+        width: 100%;
+        margin-bottom: 10px;
+      }
+
+      .form-control {
+        margin-bottom: 10px;
+      }
+
+      .btn-custom {
+        background-color: #0069d9;
+        color: white;
+        border-radius: 25px;
+        padding: 10px 20px;
+        display: block;
+        margin: 0 auto;
+      }
+
+      .jumbotron {
+        background-color: rgba(255, 255, 255, 0.5);
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px 1px #ccc;
+      }
+
+      h1,
+      h2 {
+        font-weight: bold;
+      }
+
+      .lead {
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+      }
+
+      .btn-secondary {
+        background-color: #3f3f3f;
+        color: white;
+        border-radius: 25px;
+        padding: 10px 20px;
+        display: block;
+        margin: 0 auto;
+      }
+
+      .btn-secondary:hover {
+        background-color: #2c2c2c;
+      }
+
+
+      .welcome-message {
+      margin-top: 50px;
+      text-align: center;
+      background-color: #f5f5f2;
+      padding: 50px 0;
+      border-radius: 10px;
+}
+
+.welcome-message h1 {
+  font-size: 36px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.welcome-message p {
+  font-size: 20px;
+  margin-bottom: 0;
+}
+
+    </style>
+  </head>
+      <body>
+        
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+          <a class="navbar-brand" href="#">Smart Contract</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                <a class="nav-link" href="{%url 'home'%}">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'signup' %}">Signup</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{%url 'mainPage'%}">Blockchain</a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+        <div class="welcome-message">
+          <h1>Runtime Verification of Smart Contracts App</h1>
+          <p>"Blockchain is as pointless as the internet was 25 years ago."</p>
+      </div>
+        <div class="container">
+          <div class="row justify-content-center">
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-header">Connect to Metamask</div>
+                <div class="card-body">
+                  <button type="button" class="btn btn-custom" onclick="connectMetamask()">Connect to Metamask</button>
+                  <p id="accountArea">Connection Status: NOT CONNECTED to Metamask</p>
+                  <p id="walletConnected" style="display:none;">Connected to your wallet.</p>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header">Select Lender</div>
+                <div class="card-body">
+                  <button type="button" class="btn btn-primary" onclick="connectContract()">Lender A</button>
+                  <p id="contractArea">Connection Status: NOT CONNECTED to Lender Smart Contract</p>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header">Transaction</div>
+                <div class="card-body">
+                  <div class="form-group">
+                    <label for="inputAmount">Amount</label>
+                    <input type="number" class="form-control" id="inputAmount" placeholder="Enter amount">
+                  </div>
+                  <button type="button" class="btn btn-primary" onclick="borrow()">Send</button>
+                  <p id="borrowMessage"></p>
+          
+                  <p id="step1Label">Step 1: Upload Contract File</p>
+                  <p id="step2Label">Step 2: Automatic Runtime Verification</p>
+                  <p id="step3Label">Step 3: Execute Transaction</p>
+          
+                  <p id="step1Message"></p>
+                  <p id="step2Message"></p>
+                  <p id="step3Message"></p>
+          
+                  <div class="form-group">
+                    <label for="fileInputTransaction">Contract File</label>
+                    <input type="file" id="fileInputTransaction" />
+                    <p id="transactionInfo"></p>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header">Contract Information</div>
+                <div class="card-body">
+
+                  <input type="file" id="fileInput" />
+                  <button type="button" class="btn btn-primary" onclick="readContract()">Get Info</button>
+                  <p id="contractInfo"></p>
+
+                  <input type="file" id="fuzzFileInput" />
+                  <button type="button" class="btn btn-primary" onclick="fuzzContract()">Fuzz Contract</button>
+                  <button type="button" class="btn btn-success" onclick="downloadFuzzedContract()">Download Fuzzed Contract</button>
+                  <p id="fuzzedContractInfo"></p>
+
+                </div>
+              </div>
+
+      <script>
+      let account;
+      let id;
+      let output
+      let user;
+      let userName;
+      let accountFoundFlag = false
+      let ABI;
+      
+      const connectMetamask = async () => {
+        let accountList = {{ account_list_json|safe }};
+        if (window.ethereum !== "undefined") {
+          const accounts = await ethereum.request({
+            method: "eth_requestAccounts",
+          });
+          account = accounts[0].trim().toLowerCase();
+          console.log("account pulled ", account)
+          for (let x in accountList) {
+            member_id = accountList[x].account_id.trim().toLowerCase();
+          console.log("database value is ",member_id);
+          console.log(member_id === account)
+          if (member_id === account) {
+            output = `Account is: ${account} \n Logged in as ${accountList[x].fname} ${accountList[x].lname}`
+            userName = `${accountList[x].fname} ${accountList[x].lname}`
+            console.log(userName)
+            id = accountList[x].id
+            accountFoundFlag = (member_id === account)
+            break
+          }
+          else{
+            output = "Account Not Found"
+          }}
+          document.getElementById(
+            "accountArea"
+          ).innerHTML = output ;
+          }
+          document.getElementById("userName").value = userName;
+      };
+      
+
+      const connectContract = async () => {
+       ABI = [
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_borrowedAmount",
+				"type": "uint256"
+			}
+		],
+		"name": "borrowFunc",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_amount",
+				"type": "uint256"
+			}
+		],
+		"name": "changeAmount",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "borrowedAmount",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "farmerName",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "lenderName",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]
+        const Address = "0x140706B24caf79806A0F9f0255D6589B7e6c1b91";
+        window.web3 = await new Web3(window.ethereum);
+        window.contract = await new window.web3.eth.Contract(ABI, Address);
+        document.getElementById("contractArea").innerHTML =
+          "Connection Status: Success";
+      };
+
+      const readContract = async () => {
+        console.log('readContract function is being executed(debug purpose message)');
+        try {
+          const fileInput = document.getElementById('fileInput');
+          const file = fileInput.files[0];
+      
+          if (file) {
+            const fileName = file.name;
+            
+            // Check if the file has a .sol extension
+            if (!fileName.endsWith('.sol')) {
+              document.getElementById("contractInfo").innerHTML = "Error: Please upload a file with a .sol extension.";
+              return;
+            }
+      
+            const reader = new FileReader();
+      
+            reader.onload = function (e) {
+              const textContent = e.target.result;
+              const parsedText = textContent.replace(/;/g, ';<br>');
+      
+              document.getElementById("contractInfo").innerHTML = `Parsed content from the file:<br>${parsedText}`;
+            };
+      
+            reader.readAsText(file);
+          } else {
+            document.getElementById("contractInfo").innerHTML = "No file selected.";
+          }
+        } catch (error) {
+          console.error('Error in readContract:', error);
+        }
+      };
+
+      const fuzzContract = async () => {
+        console.log('fuzzContract function is being executed(debug purpose message)');
+        try {
+          const fileInput = document.getElementById('fuzzFileInput');
+          const file = fileInput.files[0];
+
+          if (!file) {
+            document.getElementById("fuzzedContractInfo").innerHTML = "Error: Please upload a contract file.";
+            return;
+          }
+          
+          const fileName = file.name;
+          // Check if the file has a .sol extension
+          if (!fileName.endsWith('.sol')) {
+            document.getElementById("fuzzedContractInfo").innerHTML = "Error: Please upload a file with a .sol extension.";
+            return;
+          }
+
+          const reader = new FileReader();
+
+          reader.onload = function (e) {
+            const textContent = e.target.result;
+
+            // Fuzz the contract (example: randomly remove some characters)
+            const fuzzedContract = fuzz(textContent);
+
+            document.getElementById("fuzzedContractInfo").innerHTML = `Fuzzed contract:<br>${fuzzedContract}`;
+          };
+
+          reader.readAsText(file);
+        } catch (error) {
+          console.error('Error in fuzzContract:', error);
+        }
+      };
+
+      // Function to perform random fuzzing
+      const fuzz = (contract) => {
+        // Example: Randomly remove 5% of characters
+        const charsToRemove = Math.floor(contract.length * 0.1);
+        const fuzzedContract = contract
+          .split('')
+          .filter((char) => Math.random() > 0.05)
+          .join('');
+
+        return fuzzedContract;
+      };
+
+      const downloadFuzzedContract = () => {
+        const fuzzedContractContent = document.getElementById("fuzzedContractInfo").textContent;
+    
+        if (!fuzzedContractContent) {
+          alert("No fuzzed contract available to download.");
+          return;
+        }
+    
+        const blob = new Blob([fuzzedContractContent], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "fuzzed_contract.sol";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      };
+
+      const borrow = async () => {
+        try {
+          const fileInput = document.getElementById('fileInputTransaction');
+          const file = fileInput.files[0];
+      
+          // Step 1: Upload Contract File
+          document.getElementById("step1Message").innerHTML = "Contract file uploaded successfully.";
+          document.getElementById("step2Message").innerHTML = ""; // Reset step 2 message
+          document.getElementById("step3Message").innerHTML = ""; // Reset step 3 message
+      
+          if (!file) {
+            document.getElementById("step1Message").innerHTML = "Error: Please upload a contract file.";
+            return;
+          }
+      
+          const fileName = file.name;
+          // Check if the file has a .sol extension
+          if (!fileName.endsWith('.sol')) {
+            document.getElementById("step1Message").innerHTML = "Error: Please upload a file with a .sol extension.";
+            return;
+          }
+      
+          const reader = new FileReader();
+      
+          reader.onload = async function (e) {
+            const contractContent = e.target.result;
+      
+            // Check if the contract contains "pragma solidity ^0.8.7;" or any lower version
+            if (!contractContent.match(/pragma solidity \^?0\.8\.[0-7];/)) {
+              document.getElementById("step1Message").innerHTML = "Error: Contract should have pragma solidity version 0.8.7 or lower.";
+              return;
+            }
+      
+            // Extract 'uint internal amount = <amount>' from the contract content
+            const match = contractContent.match(/uint\s+internal\s+amount\s*=\s*(\d+)/);
+            const contractAmount = match ? parseInt(match[1], 10) : undefined;
+      
+            if (isNaN(contractAmount)) {
+              document.getElementById("borrowMessage").innerHTML = "Error: Contract does not contain a valid 'uint internal amount' field.";
+              return;
+            }
+
+            // Extract 'string public lenderName = "<lenderName>"' from the contract content
+            const matchName = contractContent.match(/string\s+public\s+lenderName\s*=\s*"(.*?)"/);
+            const contractLenderName = matchName ? matchName[1] : undefined;
+
+            if (!contractLenderName) {
+              document.getElementById("borrowMessage").innerHTML = "Error: Contract does not contain a valid 'string public lenderName' field.";
+              return;
+            }
+      
+            const amountInput = document.getElementById("inputAmount").value;
+      
+            // Step 2: Verify Amount
+            document.getElementById("step2Message").innerHTML = "Verifying contract...";
+            document.getElementById("step3Message").innerHTML = ""; // Reset step 3 message
+            await new Promise(resolve => setTimeout(resolve, 5000));
+      
+            if (isNaN(amountInput) || amountInput < 0) {
+              document.getElementById("borrowMessage").innerHTML = "Invalid amount. Please enter a positive number.";
+              document.getElementById("step2Message").innerHTML = "Error: Invalid amount.";
+              return;
+            }
+      
+            if (parseFloat(amountInput) <= parseFloat(contractAmount)) {
+              // Step 3: Execute Transaction
+              document.getElementById("step2Message").innerHTML = "Verification ok";
+              document.getElementById("step3Message").innerHTML = "Executing transaction...";
+      
+              await new Promise(resolve => setTimeout(resolve, 5000));
+      
+              // Print successful borrow transaction message
+              let lenderName = "No Lender Connected";
+              try {
+                lenderName = contractLenderName;
+                if (lenderName === "No Lender Connected") {
+                  throw new Error("No Lender Connected");
+                }
+              } catch (contractError) {
+                console.error('Error fetching lender name from contract:', contractError);
+                document.getElementById("borrowMessage").innerHTML = "Error fetching lender name from contract.";
+                document.getElementById("step3Message").innerHTML = "Transaction aborted.";
+                return;
+              }
+              document.getElementById("borrowMessage").innerHTML = `Successful borrow transaction from Lender: ${contractLenderName}!`;
+              document.getElementById("step3Message").innerHTML = "Transaction successful!";
+            } else {
+              document.getElementById("borrowMessage").innerHTML = "Invalid amount. Amount exceeds available funds.";
+              document.getElementById("step2Message").innerHTML = "Error: Amount exceeds available funds.";
+            }
+          };
+      
+          reader.readAsText(file);
+        } catch (error) {
+          document.getElementById("borrowMessage").innerHTML = "Invalid contract. Aborting transaction.";
+          console.error('Error in borrow:', error);
+        }
+      };
+      
+      
+      window.addEventListener("load", connectMetamask)
+      
+            
+    </script>
+    </div>
+  </body>
+</html>
